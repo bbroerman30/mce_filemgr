@@ -1,0 +1,10 @@
+a:hover { cursor:hand;}
+.selected {background-color:#66DDCC;}
+.filemgrpopupmenu { border:thin solid red; width:70px; height:90px; left:0px top:0px; position:absolute; z-index:300050; background-color:#FFFFFF; padding:5px; padding-top:0px; display:none;}
+.filemgrpopupmenu a { height:13px; margin-top: 5px; display:block; }
+.filemgrpopupmenu a:hover {background-color:#66DDCC;}
+.filemgrpopupmenu #filemgrpopupcut { padding-left: 19px; background-image: url('../img/cutb16.png'); background-repeat: no-repeat; background-position:left;}
+.filemgrpopupmenu #filemgrpopupcopy { padding-left: 19px; background-image: url('../img/documentsorcopy16.png'); background-repeat:no-repeat; background-position:left;}
+.filemgrpopupmenu #filemgrpopuppaste { padding-left: 19px; background-image: url('../img/pastfile16.png'); background-repeat:no-repeat; background-position:left;}
+.filemgrpopupmenu #filemgrpopupdelete { padding-left: 19px; background-image: url('../img/delete16.png'); background-repeat:no-repeat; background-position:left;}
+.filemgrpopupmenu #filemgrpopuprename { padding-left: 19px; background-image: url('../img/refresh16.png'); background-repeat:no-repeat; background-position:left;}

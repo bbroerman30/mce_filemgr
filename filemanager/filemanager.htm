@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Browse Server</title>
+	<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
+	<script type="text/javascript" src="../../utils/form_utils.js"></script>
+	<script type="text/javascript" src="../../utils/validate.js"></script>
+	<script type="text/javascript" src="js/filemgrdialog.js"></script>
+	<link href="css/filemanager.css" rel="stylesheet" type="text/css" />
+	<base target="_self" /></head>
+<body id="filemgr" onResize="FileMgrDialog.processResize()" style="display: none">
+
+    <form onsubmit="FileMgrDialog.insert();return false;" action="#">     
+        <br>
+        <button name='Refresh' title='Refresh' value='Refresh' onClick='FileMgrDialog.refresh();return false;' style='padding:0px; margin:0px; float:right; '> <img src='img/refresh.png' alt='Refresh'> </button>
+        <button name='Add Directory' title='Add Directory' value='Add Directory' onClick='FileMgrDialog.addDirectory();return false;' style='padding:0px; margin:0px; float:right;'> <img src='img/add-folder.png' alt='Add Folder'> </button>
+        <button name='Upload File(s)' title='Upload Files' value='Upload File(s)' onClick='FileMgrDialog.getFileList();return false;' style='padding:0px; margin:0px; float:right;'> <img src='img/add_image.png' alt='Upload Image'> </button>
+        <span style='padding:0px; margin:0px; float:right;'>&nbsp;&nbsp;</span>
+        <button name='Delete' title='Delete' value='Delete' onClick='FileMgrDialog.fileDelete();return false;' style='padding:0px; margin:0px; float:right;'> <img src='img/delete.png' alt='Delete'> </button>
+        <button name='Paste' title='Paste' value='Paste' onClick='FileMgrDialog.filePaste();return false;' style='padding:0px; margin:0px; float:right;'> <img src='img/paste.png' alt='Paste'> </button>
+        <button name='Cut' title='Cut' value='Cut' onClick='FileMgrDialog.fileCut();return false;' style='padding:0px; margin:0px; float:right;'> <img src='img/cut.png' alt='Cut'> </button>
+        <button name='Copy' title='Copy' value='Copy' onClick='FileMgrDialog.fileCopy();return false;' style='padding:0px; margin:0px; float:right;'> <img src='img/copy.png' alt='Copy'> </button>
+        <br style='clear:both;'>
+        <div style='white-space: nowrap;'>
+        <div id='treeview' style='border: thin solid black; width:32%; height:245px; overflow:auto; float:left; margin-top:5px; margin-bottom:5px; display:inline-block;'> </div>
+        <div id='dirlist' style='border: thin solid black; width:65%; height:245px; overflow:auto; float:left; margin-top:5px; margin-bottom:5px;display: inline-block;'> </div>
+        </div>
+        <br>
+        <div id='progressbar' style='width:130px; text-align:left; float:left; display:none;'><span id='overallpercent'> 0% </span> &nbsp; ( <span id='percent'> 0% </span> ) </div> <div id='statusarea' style='width:400px; float:left; display:inline-block;'> &nbsp; </div>
+        <br style='clear:both; height:10px;'>
+
+	<div class="mceActionPanel">
+		<div style="float: left">
+			<input type="button" id="insert" name="insert" value="{#insert}" onclick="FileMgrDialog.insert();" />
+		</div>
+
+		<div style="float: right">
+			<input type="button" id="cancel" name="cancel" value="{#cancel}" onclick="tinyMCEPopup.close();" />
+		</div>
+	</div>
+</form>
+<APPLET code="FTPApplet" name="ftpappl" id="ftpappl" width="1" height="1" archive="FTPApplet.jar" MAYSCRIPT>
+        <PARAM name="FilePercentCallBack" value="FileMgrDialog._setFilePercent">
+        <PARAM name="PercentCallback" value="FileMgrDialog._setPercent">
+        <PARAM name="StatusCallback" value="FileMgrDialog._setStatus">
+        <PARAM name="FileCompleteCallback" value="FileMgrDialog._finished">
+        <PARAM name="FTPCompleteCallback" value="FileMgrDialog._allfinished">
+        <PARAM name="FileSelectCallback" value="FileMgrDialog._setFilesSelected">
+        <B>Java Applet Support Required <B>
+    </APPLET>  
+</body>
+</html>
