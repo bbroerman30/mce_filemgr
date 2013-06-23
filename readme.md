@@ -17,7 +17,7 @@ to update the path definitions inside (at the top of) ftpauthserver.php<br>
 <br>
 Also, most likely, you will want to re-sign the JAR file. I currently have it signed with a 
 self-signed certificate. While this may be good enought for your personal use, it probably wouldn't be
-good for production sites.  Additionally, the applet does not work well with Java 1.7.<br>
+good for production sites.<br>
 <br>
 For more information on FTPApplet and SFTPApplet see the respective GIT repositories at
 https://github.com/bbroerman30/FTPApplet and https://github.com/bbroerman30/SFTPApplet<br>
