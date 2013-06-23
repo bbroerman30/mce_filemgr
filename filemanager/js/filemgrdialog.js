@@ -182,7 +182,10 @@ var FileMgrDialog = {
   },
 
   getFileList : function() {
-  
+    if( document.ftpappl && 
+        document.ftpappl.isActive && 
+        document.ftpappl.isActive() && 
+        document.ftpappl.setPercentCallBack ) { 
       document.ftpappl.setPercentCallBack( "FileMgrDialog._setPercent" );
       document.ftpappl.setFilePercentCallBack( "FileMgrDialog._setFilePercent" );
       document.ftpappl.setStatusCallBack( "FileMgrDialog._setStatus" );
@@ -191,6 +194,32 @@ var FileMgrDialog = {
       document.ftpappl.setFileSelectCallBack( "FileMgrDialog._setFilesSelected" );
   
       document.ftpappl.getFiles(true);
+    } else {
+      this.fileUploadByForm();        
+    }
+  },
+
+  fileUploadByForm : function() {
+    var that = this;
+
+    // Show popup for directory name (popup will call callback to initiate a refresh).
+    tinyMCE.activeEditor.windowManager.open({
+          file : that.getBaseURL() + '/formfileupload.htm',
+          title : 'Upload a file',
+          width : 330,  // Your dimensions may differ - toy around with them!
+          height : 80,
+          resizable : "no",
+          inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
+          close_previous : "no"
+      }, {
+          refreshFn : function(response) {
+            if( "success" != response ) {
+              tinyMCE.activeEditor.windowManager.alert('File upload failed: ' + response );
+            } else {
+              that.refresh();
+            }         
+          }
+      });
   },
 
   addDirectory : function() {
@@ -527,7 +556,14 @@ var FileMgrDialog = {
 
   uploadFile : function ()
   {
-      document.ftpappl.getFiles();
+      if( document.ftpappl && 
+          document.ftpappl.isActive && 
+          document.ftpappl.isActive() && 
+          document.ftpappl.setPercentCallBack ) { 
+		document.ftpappl.getFiles();
+      } else {
+        alert("The FTPApplet Java applet must be enabled to do file upload.");
+      }
   },
 
     selectItemForOp : function ( e )

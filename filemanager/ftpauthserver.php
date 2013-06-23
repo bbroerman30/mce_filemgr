@@ -1,23 +1,24 @@
 <?php
 
-    $ftpRoot = "<FTP USER ROOT DIRECTORY>";                 // Root directory for the FTP user.
-    $tempUploadFolder = "/secure_images/temp";              // Realative directory to place files (relative to FTP base above).
-    $tempCutPasteFolder = "\tmp\imagecutbuffer";            // Where files wait after cut, before paste.
-    $ImageFolder = "<FULL PATH OF FILES AREA>";             // Full pathname for the base (root) directory of the images folder.
-    $ImageFolderHttpAddr = "<WEB PATH OF FILE AREA";        // Relative or absolute URL of the images folder for web.
+    $ftpRoot = "FTP Account base directory";                   // Where the FTP'd files will be (full pathname) 
+    $tempUploadFolder = "Relative path to temp upload dir";    // Again, where they will be, but this time path relative to FTP user.
+    $tempCutPasteFolder = "Cut/Paste path";                    // Where files wait after cut, before paste.
+    $ImageFolder = "Full path to images base folder";          // Full pathname for the base (root) directory of the images folder.
+    $ImageFolderHttpAddr = "Relative path to image folder";    // Relative or absolute URL of the images folder for web.
+    $FILE_FILTERS = Array( 'Image Files' => Array( 'png', 'jpg', 'jpeg', 'gif' ) );
         
-    require_once('pclzip.lib.php');                         // used to process ZIP files.
-    require_once('<PATH TO INCLUDES FOLDER>/filemgr.php');  // Contains definitions for FTP user name and password... outside doc path.
+    require_once('pclzip.lib.php');                       // used to process ZIP files.
+    require_once('Full path to username/password file');  // Contains definitions for FTP user name and password... outside doc path.
 
     session_start();
 
     //
     // Try to prevent session fixation attack.
     //
-    if (!isset($_SESSION['sesshacktestvariablename']))
+    if (!isset($_SESSION['bbphotoinitiated']))
     {
         session_regenerate_id();
-        $_SESSION['sesshacktestvariablename'] = true;
+        $_SESSION['bbphotoinitiated'] = true;
     }        
 
     header("Content-type: text/xml");
@@ -32,10 +33,32 @@
     // short of a certificate driven encryption (like SSL) will...
     //
     $origKey = $_POST['key'];
-    $validated = false;
+    $validated = true;
     $validated_see = true;
     
-    if( true == $validated && isSet($_POST['action']) &&  $_POST['action'] == 'PreUploadPhoto' )
+    if( isSet($_POST['action']) &&  $_POST['action'] == 'getvalidfileslist' )
+    {
+        //
+        // If so, generate a new secure key, and pass back all of the necessary information.
+        //
+        print( "<success>\n" );
+
+        foreach( $FILE_FILTERS as $filter_name => $ext_list )
+        {
+            print( "<filter desc='" . $filter_name . "'>\n" );
+
+            foreach( $ext_list as $ext )
+            {
+                print( "<ext>" . $ext . "</ext>\n" );
+            }
+
+            print( "</filter>\n" );
+        }
+
+        print( "<newauth>" . $newKey . "</newauth>\n" );
+        print( "</success>\n" );
+    }
+    else if( true == $validated && isSet($_POST['action']) &&  $_POST['action'] == 'PreUploadPhoto' )
     {
         //
         //  This method allows you to pre-validate that the images about to be uploaded are allowable
@@ -47,6 +70,12 @@
         {
             $_SESSION['uploadReady'] = true;
             $_SESSION['uploaDirectory'] = $_POST['path'];
+                                
+            if( $_SESSION['uploaDirectory'] == "/" )
+            {
+                $_SESSION['uploaDirectory'] = "";
+            }
+            
             print("<success/>\n");
         }
     }
@@ -75,6 +104,68 @@
         print("<newauth>" . $newKey . "</newauth>\n");
         print("</success>\n");          
     }
+    elseif(  true == $validated && isSet($_POST['action']) &&  $_POST['action'] == 'form_file_upload' )
+    {
+	  //
+	  // This method is called if the user has denied permission for the FTP applet to run, or has
+	  // turned off Java completely. It processes a form based file upload. Essentially combining
+	  // the PreUploadPhoto, uploadPhoto, and photoUploadDone actions. The file is in a temp
+	  // directory (put there by the PHP runtime), and you need to validate and test it here, and then
+	  // move it to the final destination. So, place any additional file checks here that you would have
+	  // put in those other methods.
+	  //
+      $newKey = generateKey( 10 );
+        
+      if( !isset( $_SESSION['uploaDirectory'] ) )
+        $_SESSION['uploaDirectory'] = "";
+        
+      $destinationDirectory = $ImageFolder . $_SESSION['uploaDirectory'];  
+      $uploadfile = $destinationDirectory . "/" . basename($_FILES['name']['name']);
+      
+      if( !pathinfo(basename($_FILES['name']['name']),PATHINFO_EXTENSION) == 'gif' &&
+          !pathinfo(basename($_FILES['name']['name']),PATHINFO_EXTENSION) == 'jpg' &&
+          !pathinfo(basename($_FILES['name']['name']),PATHINFO_EXTENSION) == 'jpeg' &&
+          !pathinfo(basename($_FILES['name']['name']),PATHINFO_EXTENSION) == 'png' &&
+          !pathinfo(basename($_FILES['name']['name']),PATHINFO_EXTENSION) == 'zip' ) {
+          
+          print("<failed>Invalid file type</failed>\n");
+          print("</response>\n");
+          return;
+      }
+      
+      if(@move_uploaded_file($_FILES['name']['tmp_name'], $uploadfile)) 
+      {
+		print("<status>[!CDATA[ Moved file from /tmp/".$_FILES['name']['tmp_name']." to ". $uploadfile . "]]</status>\n");
+		
+        $oldumask = umask(0) ;
+      	@chmod( $uploadfile, 0744 ) ;
+        umask( $oldumask ) ;
+		
+		// If the file is a zip file, we need to unzip it in the current directory, and remove the zip file.
+        if( pathinfo($uploadfile,PATHINFO_EXTENSION) == 'zip' )
+        {
+         	//
+            // Now, open the zip file, and extract the images. For each image, if successful, print a Javascript call to add the pic to the parent window.
+ 	        //
+		    $archive = new PclZip($uploadfile);
+	   
+	        $statusList = $archive->extract( PCLZIP_OPT_PATH, 
+	                                         $destinationDirectory,
+                                             PCLZIP_OPT_REMOVE_ALL_PATH);
+        }
+        
+        $_SESSION['photoAdminsecureKey'] = $newKey;
+        print("<success>\n");
+        print("<newauth>" . $newKey . "</newauth>\n");
+        print("</success>\n");
+	  } 
+	  else 
+	  {
+		print("<failed>Failed to upload file</failed>\n");
+      }
+               
+
+    }
     elseif(  true == $validated && isSet($_POST['action']) &&  $_POST['action'] == 'photoUploadDone' )
     {
         //
@@ -99,7 +190,7 @@
 
             $oldumask = umask(0) ;
           	@chmod( $destinationDirectory."/".$listOfFiles[$indx], 0744 ) ;
-	          umask( $oldumask ) ;
+	        umask( $oldumask ) ;
             
     
             // If the file is a zip file, we need to unzip it in the current directory, and remove the zip file.
@@ -537,7 +628,7 @@ function printDirectoryFiles( $path = '/')
     // Now, if we're not in the root directory (i.e. path isn't '/' or '.') we show ".."
     if( $path != '/' && $path != '')
     {
-         print "$spaces <dir name='..' path='$path'/>\n";
+         print " <dir name='..' path='$path'/>\n";
     }
     
     // Now, get the list of files and directories inside this directory.      
@@ -549,7 +640,7 @@ function printDirectoryFiles( $path = '/')
     {        
         if( !in_array( $file, $ignore ) )
         {
-            $spaces = str_repeat( ' ', ( $level * 4 ) );
+            $spaces = '';//str_repeat( ' ', ( $level * 4 ) );
             if( is_dir( "${ImageFolder}$path/$file" ) )
             {                
                 print "$spaces <dir name='$file' path='$path'/>\n";
