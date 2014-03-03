@@ -27,3 +27,4 @@ For a working demo, please check out <a href='http://www.bbroerman.net/tinymce1.
 Portions are Copyright 2003-2008, Moxiecode Systems AB.<br>
 Portions are Copyright 2009, Brad Broerman<br>
 <br>
+Overall, this code is licensed with the LGPL 2.1 license (some portions may have other licensing arrangements. Please look at all source modules). You are free to use or modify this code in any way for your works (open or closed source), with only the following stipulations: Retain all copyright headers in the existing code, and if you make bug fixes to the existing code, we ask that you please be considerate and post your fixes to this repository as well.
